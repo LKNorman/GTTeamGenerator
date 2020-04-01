@@ -24,17 +24,17 @@ function addManager() {
     return inquirer.prompt([
         {
             type: "input",
-            name: "managerName",
+            name: "name",
             message: "What is the team manager's name?"
         },
         {
             type: "input",
-            name: "managerId",
+            name: "id",
             message: "What is their id?"
         },
         {
             type: "input",
-            name: "managerEmail",
+            name: "email",
             message: "What is their email address?"
         },
         {
@@ -44,7 +44,7 @@ function addManager() {
         }
     ])
         .then(val => {
-            team.push(new Manager(val.managerName, val.managerId, val.managerEmail, val.officeNumber));
+            team.push(new Manager(val.name, val.id, val.email, val.officeNumber));
         })
 };
 
@@ -53,23 +53,23 @@ function addEmployees() {
     return inquirer.prompt([
         {
             type: "list",
-            name: "memberRole",
+            name: "role",
             message: "What role is this employee?",
             choices: ["Engineer", "Intern"],
         },
         {
             type: "input",
-            name: "employeeName",
+            name: "name",
             message: "What is the employee's name?"
         },
         {
             type: "input",
-            name: "employeeId",
+            name: "id",
             message: "What is the employee's ID?",
         },
         {
             type: "input",
-            name: "employeeEmail",
+            name: "email",
             message: "What is their email address?",
         },
         {
@@ -87,9 +87,9 @@ function addEmployees() {
     ])
         .then(val => {
             if (val.role === "Engineer") {
-                team.push(new Engineer(val.employeeName, val.employeeId, val.employeeEmail, val.github));
+                team.push(new Engineer(val.name, val.id, val.email, val.github));
             } else {
-                team.push(new Intern(val.employeeName, val.employeeId, val.employeeEmail, val.school));
+                team.push(new Intern(val.name, val.id, val.email, val.school));
             }
             // calling the below functions to redo all of the prompts above
             addAnotherEmployee();
