@@ -11,68 +11,45 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 const render = require("./lib/htmlRenderer");
 // ​array for complete team
 var team = [];
+var hasManager = false;
 
-// function to build out array
-buildTeam();
-
-function buildTeam() {
-  addManager();
-  addEmployees();
-}
 // function to prompt the information input for the team manager, first because only one per team
-function addManager() {
-  return inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "name",
-        message: "What is the team manager's name?"
-      },
-      {
-        type: "input",
-        name: "id",
-        message: "What is their id?"
-      },
-      {
-        type: "input",
-        name: "email",
-        message: "What is their email address?"
-      },
-      {
-        type: "input",
-        name: "officeNumber",
-        message: "What is the managers office number?"
-      }
-    ])
-    .then(val => {
-      team.push(new Manager(val.name, val.id, val.email, val.officeNumber));
-    });
-}
-
-// function to build out the team members
-function addEmployees() {
+const buildTeam = () => {
   return inquirer
     .prompt([
       {
         type: "list",
         name: "role",
         message: "What role is this employee?",
-        choices: ["Engineer", "Intern"]
+        choices: () => {
+          if (hasManager === false) {
+            hasManager = true;
+            return ["Manager"];
+          } else {
+            return ["Engineer", "Intern"];
+          }
+        }
       },
       {
         type: "input",
         name: "name",
-        message: "What is the employee's name?"
+        message: "What is this employee's name?"
       },
       {
         type: "input",
         name: "id",
-        message: "What is the employee's ID?"
+        message: "What is this employee's id?"
       },
       {
         type: "input",
         name: "email",
-        message: "What is their email address?"
+        message: "What is this employee's email address?"
+      },
+      {
+        when: val => val.role === "Manager",
+        type: "input",
+        name: "officeNumber",
+        message: "What is this employee's office number?"
       },
       {
         when: val => val.role === "Engineer",
@@ -88,43 +65,43 @@ function addEmployees() {
       }
     ])
     .then(val => {
-      if (val.role === "Engineer") {
+      if (val.role === "Manager") {
+        team.push(new Manager(val.name, val.id, val.email, val.officeNumber));
+      } else if (val.role === "Engineer") {
         team.push(new Engineer(val.name, val.id, val.email, val.github));
       } else {
         team.push(new Intern(val.name, val.id, val.email, val.school));
       }
-      // calling the below functions to redo all of the prompts above
       addAnotherEmployee();
     });
-}
-// asking if there are any more engineers/interns
-function addAnotherEmployee() {
-  inquire
-    .prompt([
-      {
-        type: "list",
-        name: "newEmployee",
-        message: "Are there any more employees on this team?",
-        choices: ["yes", "no"]
+  // asking if there are any more engineers/interns
+  function addAnotherEmployee() {
+    inquire
+      .prompt([
+        {
+          type: "list",
+          name: "newEmployee",
+          message: "Are there any more employees on this team?",
+          choices: ["yes", "no"]
+        }
+      ])
+      .then(val => {
+        if (val.addAnotherEmployee === "yes") {
+          this.addEmployees();
+        } else {
+          writeHTML();
+        }
+      });
+    // writes the html output
+    const writeHTML = () => {
+      if (!fs.existsSync("./ouput")) {
+        fs.mkdirSync("./output");
       }
-    ])
-    .then(val => {
-      if (val.addAnotherEmployee === "yes") {
-        this.addEmployees();
-      } else {
-        writeHTML();
-      }
-    });
-}
-
-const writeHTML = () => {
-  if (!fs.existsSync("./ouput")) {
-    fs.mkdirSync("./output");
+      fs.writeFile(outputPath, render(team), err => {
+        if (err) throw err;
+        console.log("Team.html created");
+      });
+    };
   }
-  fs.writeFile(outputPath, render(team), err => {
-    if (err) throw err;
-    console.log("Team.html created");
-  });
 };
-
 buildTeam();
