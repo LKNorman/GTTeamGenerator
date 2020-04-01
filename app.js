@@ -9,12 +9,12 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
-// ​array for complete team
+// ​array for complete team and boolean to make sure manager is forced first
 var team = [];
 var hasManager = false;
 
 // function to prompt the information input for the team manager, first because only one per team
-const buildTeam = () => {
+const addEmployees = () => {
   return inquirer
     .prompt([
       {
@@ -76,7 +76,7 @@ const buildTeam = () => {
     });
   // asking if there are any more engineers/interns
   function addAnotherEmployee() {
-    inquire
+    inquirer
       .prompt([
         {
           type: "list",
@@ -86,8 +86,8 @@ const buildTeam = () => {
         }
       ])
       .then(val => {
-        if (val.addAnotherEmployee === "yes") {
-          this.addEmployees();
+        if (val.newEmployee === "yes") {
+          addEmployees();
         } else {
           writeHTML();
         }
@@ -104,4 +104,4 @@ const buildTeam = () => {
     };
   }
 };
-buildTeam();
+addEmployees();
