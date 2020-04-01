@@ -15,7 +15,7 @@ buildTeam();
 
 function buildTeam() {
     addManager();
-    addTeam();
+    addMembers();
 }
 
 // function to prompt the information input for the team manager, first because only one per team
@@ -43,6 +43,53 @@ function addManager() {
         }
     ])
     .then(val => {
-        team.push(Manager(val.managerName, val.managerId, val.managerEmail, val.officeNumber));
+        team.push(new Manager(val.managerName, val.managerId, val.managerEmail, val.officeNumber));
     })
 };
+
+// function to build out the team members
+function addMembers() {
+    return inquirer.prompt([
+        {
+        type: "list",
+        name: "memberRole",
+        message: "What role is this employee?",
+        choices: ["Engineer","Intern"],
+        },
+        {
+        type: "input",
+        name: "employeeName",
+        message: "What is the employee's name?"
+        },
+        {
+        type: "input",
+        name: "employeeId",
+        message: "What is the employee's ID?",
+        },
+        {
+        type: "input",
+        name: "employeeEmail",
+        message: "What is their email address?",
+        },
+        {
+        when: val => val.role === "Engineer",
+        type: "input",
+        name: "github",
+        message: "What is their github username?"
+        },
+        {
+        when: val => val.role === "Intern",
+        type: "input",
+        name: "school",
+        message: "What school do they go to?"
+        }
+    ])
+    .then(val => {
+        if (val.role === "Engineer") {
+            team.push(new Engineer(val.employeeName, val.employeeId, val.employeeEmail, val.github ));
+        } else{
+            team.push(new Intern(val.employeeName, val.employeeId, val.employeeEmail, val.school));
+        }
+        addAnotherMember();
+    })
+}
